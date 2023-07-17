@@ -20,8 +20,8 @@ For the examples, I'll set up GDrive under `gdrive` & the S3 config under `glaci
 export AWS_ACCESS_KEY_ID={value-here}
 export AWS_SECRET_ACCESS_KEY={value-here}
 terraform init
-terraform plan
-terraform apply
+terraform plan -var="usd_budget=1" -var="alert_email=your.email@gmail.com"
+terraform apply -var="usd_budget=1" -var="alert_email=your.email@gmail.com"
 ```
 
 ### Sync

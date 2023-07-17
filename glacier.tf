@@ -7,6 +7,14 @@ terraform {
   }
 }
 
+variable "usd_budget" {
+  type = string
+}
+
+variable "alert_email" {
+  type = string
+}
+
 resource "aws_kms_key" "glacier-key" {
   description             = "This key is used to encrypt bucket objects"
   deletion_window_in_days = 10
@@ -40,5 +48,30 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
     transition {
       storage_class = "DEEP_ARCHIVE"
     }
+  }
+}
+
+resource "aws_budgets_budget" "archive" {
+  name              = "budget-s3-monthly"
+  budget_type       = "COST"
+  limit_amount      = var.usd_budget
+  limit_unit        = "USD"
+  time_period_end   = "2087-06-15_00:00"
+  time_period_start = "2023-07-17_00:00"
+  time_unit         = "MONTHLY"
+
+  cost_filter {
+    name = "Service"
+    values = [
+      "Amazon Simple Storage Service",
+    ]
+  }
+
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 90
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = [var.alert_email]
   }
 }
